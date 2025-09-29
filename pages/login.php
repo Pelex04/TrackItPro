@@ -67,6 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $action = 'login';
             }
         }
+        
     }
 
     // Regenerate CSRF token after form submission
@@ -875,7 +876,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     <input type="checkbox" id="remember" name="remember" class="remember-checkbox">
                                     <label for="remember" class="remember-label">Remember me</label>
                                 </div>
-                                <a href="#" class="forgot-password">Forgot password?</a>
+                                <a href="forgot_password.php" class="forgot-password">Forgot password?</a>
                             </div>
                             
                             <button type="submit" class="submit-button form-element">Sign in</button>
