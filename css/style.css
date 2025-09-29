@@ -1,0 +1,42 @@
+body {
+    font-family: Arial, sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    transition: background-color 0.3s, color 0.3s;
+    position: relative;
+}
+body.light {
+    background-color: transparent;
+    color: #000;
+}
+body.dark {
+    background-color: transparent;
+    color: #fff;
+}
+.content {
+    background: rgba(255, 255, 255, 0.9); /* Semi-transparent for light mode */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+body.dark .content {
+    background: rgba(0, 0, 0, 0.7); /* Semi-transparent for dark mode */
+}
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+input, button, select {
+    padding: 10px;
+    font-size: 16px;
+}
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+    .content {
+        padding: 10px;
+    }
+}
