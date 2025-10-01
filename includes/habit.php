@@ -2,31 +2,27 @@
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/auth.php';
 
-// Only require reward.php if it exists
+
 if (file_exists(__DIR__ . '/reward.php')) {
     require_once __DIR__ . '/reward.php';
 }
 
-/**
- * Add a new habit for a user
- */
+
 function addHabit($user_id, $name, $frequency, $goal) {
     global $pdo;
     
-    // Check if created_at column exists, if not just use the basic columns
+   
     try {
         $stmt = $pdo->prepare("INSERT INTO habits (user_id, name, frequency, goal, created_at) VALUES (?, ?, ?, ?, NOW())");
         return $stmt->execute([$user_id, $name, $frequency, $goal]);
     } catch (PDOException $e) {
-        // If created_at doesn't exist, try without it
+       
         $stmt = $pdo->prepare("INSERT INTO habits (user_id, name, frequency, goal) VALUES (?, ?, ?, ?)");
         return $stmt->execute([$user_id, $name, $frequency, $goal]);
     }
 }
 
-/**
- * Get all habits for a user with enhanced data
- */
+
 function getHabits($user_id) {
     global $pdo;
     $stmt = $pdo->prepare("
@@ -52,9 +48,9 @@ function getHabits($user_id) {
     $stmt->execute([$user_id]);
     $habits = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
-    // Enhance each habit with calculated data
+   
     foreach ($habits as &$habit) {
-        // Use first_completion as a fallback for created_at
+       
         $startDate = isset($habit['created_at']) ? $habit['created_at'] : 
                      ($habit['first_completion'] ?: date('Y-m-d', strtotime('-30 days')));
         
@@ -67,9 +63,7 @@ function getHabits($user_id) {
     return $habits;
 }
 
-/**
- * Get a single habit by ID with full details
- */
+
 function getHabitById($habit_id, $user_id = null) {
     global $pdo;
     $sql = "
@@ -100,7 +94,7 @@ function getHabitById($habit_id, $user_id = null) {
     $habit = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if ($habit) {
-        // Use first_completion as a fallback for created_at
+      
         $startDate = isset($habit['created_at']) ? $habit['created_at'] : 
                      ($habit['first_completion'] ?: date('Y-m-d', strtotime('-30 days')));
         
@@ -113,36 +107,30 @@ function getHabitById($habit_id, $user_id = null) {
     return $habit;
 }
 
-/**
- * Update an existing habit
- */
+
 function updateHabit($habit_id, $name, $frequency, $goal) {
     global $pdo;
     
-    // Check if updated_at column exists
+  
     try {
         $stmt = $pdo->prepare("UPDATE habits SET name = ?, frequency = ?, goal = ?, updated_at = NOW() WHERE habit_id = ?");
         return $stmt->execute([$name, $frequency, $goal, $habit_id]);
     } catch (PDOException $e) {
-        // If updated_at doesn't exist, try without it
+    
         $stmt = $pdo->prepare("UPDATE habits SET name = ?, frequency = ?, goal = ? WHERE habit_id = ?");
         return $stmt->execute([$name, $frequency, $goal, $habit_id]);
     }
 }
 
-/**
- * Delete a habit and its progress
- */
+
 function deleteHabit($habit_id) {
     global $pdo;
     try {
         $pdo->beginTransaction();
-        
-        // Delete progress records first
+     
         $stmt = $pdo->prepare("DELETE FROM progress WHERE habit_id = ?");
         $stmt->execute([$habit_id]);
-        
-        // Delete the habit
+     
         $stmt = $pdo->prepare("DELETE FROM habits WHERE habit_id = ?");
         $stmt->execute([$habit_id]);
         
@@ -154,9 +142,7 @@ function deleteHabit($habit_id) {
     }
 }
 
-/**
- * Mark a habit as complete for a specific date
- */
+
 function markHabitComplete($habit_id, $date = null) {
     global $pdo;
     
@@ -164,34 +150,34 @@ function markHabitComplete($habit_id, $date = null) {
         $date = date('Y-m-d');
     }
     
-    // Check if already completed for this date
+
     if (isHabitCompletedOnDate($habit_id, $date)) {
-        return false; // Already completed
+        return false; 
     }
     
-    // Try with created_at column first, fallback to without it
+    
     try {
         $stmt = $pdo->prepare("INSERT INTO progress (habit_id, date_completed, created_at) VALUES (?, ?, NOW())");
         $success = $stmt->execute([$habit_id, $date]);
     } catch (PDOException $e) {
-        // If created_at column doesn't exist, try without it
+       
         try {
             $stmt = $pdo->prepare("INSERT INTO progress (habit_id, date_completed) VALUES (?, ?)");
             $success = $stmt->execute([$habit_id, $date]);
         } catch (PDOException $e2) {
-            // Log error and return false
+            
             error_log("Error marking habit complete: " . $e2->getMessage());
             return false;
         }
     }
     
     if ($success) {
-        // Try to award points if the function exists
+        
         if (function_exists('awardPoints')) {
             try {
                 awardPoints($habit_id);
             } catch (Exception $e) {
-                // If awardPoints fails, continue anyway
+           
                 error_log("Error awarding points: " . $e->getMessage());
             }
         }
@@ -200,9 +186,7 @@ function markHabitComplete($habit_id, $date = null) {
     return $success;
 }
 
-/**
- * Unmark a habit completion for a specific date
- */
+
 function unmarkHabitComplete($habit_id, $date = null) {
     global $pdo;
     
@@ -214,9 +198,7 @@ function unmarkHabitComplete($habit_id, $date = null) {
     return $stmt->execute([$habit_id, $date]);
 }
 
-/**
- * Check if a habit is completed on a specific date
- */
+
 function isHabitCompletedOnDate($habit_id, $date) {
     global $pdo;
     
@@ -225,14 +207,12 @@ function isHabitCompletedOnDate($habit_id, $date) {
         $stmt->execute([$habit_id, $date]);
         return $stmt->fetchColumn() > 0;
     } catch (PDOException $e) {
-        // If there's an error, assume not completed
+     
         return false;
     }
 }
 
-/**
- * Calculate current streak for a habit
- */
+
 function calculateCurrentStreak($habit_id) {
     global $pdo;
     $stmt = $pdo->prepare("
@@ -252,10 +232,10 @@ function calculateCurrentStreak($habit_id) {
     $currentDate = new DateTime();
     $lastDate = new DateTime($dates[0]);
     
-    // Check if the most recent completion is today or yesterday
+    
     $daysDiff = $currentDate->diff($lastDate)->days;
     if ($daysDiff > 1) {
-        return 0; // Streak is broken
+        return 0; 
     }
     
     $streak = 1;
@@ -274,9 +254,7 @@ function calculateCurrentStreak($habit_id) {
     return $streak;
 }
 
-/**
- * Calculate longest streak for a habit
- */
+
 function calculateLongestStreak($habit_id) {
     global $pdo;
     $stmt = $pdo->prepare("
@@ -311,13 +289,11 @@ function calculateLongestStreak($habit_id) {
     return $longestStreak;
 }
 
-/**
- * Calculate habit progress percentage based on frequency
- */
+
 function calculateHabitProgress($habit_id, $frequency) {
     global $pdo;
     
-    // Get completions in the last 7 days
+ 
     $stmt = $pdo->prepare("
         SELECT COUNT(*) 
         FROM progress 
@@ -327,8 +303,8 @@ function calculateHabitProgress($habit_id, $frequency) {
     $stmt->execute([$habit_id]);
     $completions = $stmt->fetchColumn();
     
-    // Determine expected completions based on frequency
-    $expected = 7; // Default to daily
+   
+    $expected = 7; 
     $frequency = strtolower($frequency);
     
     if (strpos($frequency, 'weekly') !== false || strpos($frequency, 'once') !== false) {
@@ -346,12 +322,10 @@ function calculateHabitProgress($habit_id, $frequency) {
     }
     
     $progress = $expected > 0 ? round(($completions / $expected) * 100) : 0;
-    return min($progress, 100); // Cap at 100%
+    return min($progress, 100); 
 }
 
-/**
- * Calculate overall completion rate since habit creation
- */
+
 function calculateCompletionRate($habit_id, $created_at) {
     global $pdo;
     
@@ -367,9 +341,7 @@ function calculateCompletionRate($habit_id, $created_at) {
     return min($rate, 100);
 }
 
-/**
- * Get weekly success rate for a user
- */
+
 function getWeeklySuccessRate($user_id) {
     global $pdo;
     
@@ -385,9 +357,9 @@ function getWeeklySuccessRate($user_id) {
     foreach ($habits as $habit) {
         $totalCompletions += $habit['completions_this_week'];
         
-        // Calculate expected completions
+      
         $frequency = strtolower($habit['frequency']);
-        $expected = 7; // Default to daily
+        $expected = 7;
         
         if (strpos($frequency, 'weekly') !== false || strpos($frequency, 'once') !== false) {
             $expected = 1;
@@ -409,9 +381,7 @@ function getWeeklySuccessRate($user_id) {
     return $totalExpected > 0 ? round(($totalCompletions / $totalExpected) * 100) : 0;
 }
 
-/**
- * Get user statistics
- */
+
 function getUserStats($user_id) {
     $habits = getHabits($user_id);
     
@@ -429,7 +399,7 @@ function getUserStats($user_id) {
         $stats['longest_streak'] = max($stats['longest_streak'], $habit['longest_streak']);
         $stats['total_completions'] += $habit['total_completions'];
         
-        // Count as goal achieved if completion rate >= 80% and has at least 30 completions
+        
         if ($habit['completion_rate'] >= 80 && $habit['total_completions'] >= 30) {
             $stats['goals_achieved']++;
         }
@@ -438,9 +408,7 @@ function getUserStats($user_id) {
     return $stats;
 }
 
-/**
- * Get habit completion calendar data for a specific month
- */
+
 function getHabitCalendarData($habit_id, $year, $month) {
     global $pdo;
     
@@ -457,9 +425,7 @@ function getHabitCalendarData($habit_id, $year, $month) {
     return $stmt->fetchAll(PDO::FETCH_COLUMN);
 }
 
-/**
- * Get progress trend data for charts
- */
+
 function getProgressTrendData($user_id, $period = 'year') {
     global $pdo;
     
@@ -467,7 +433,7 @@ function getProgressTrendData($user_id, $period = 'year') {
     
     switch ($period) {
         case 'week':
-            // Last 7 days
+           
             for ($i = 6; $i >= 0; $i--) {
                 $date = date('Y-m-d', strtotime("-$i days"));
                 $dayName = date('D', strtotime($date));
@@ -491,7 +457,7 @@ function getProgressTrendData($user_id, $period = 'year') {
             break;
             
         case 'month':
-            // Last 4 weeks
+            
             for ($i = 3; $i >= 0; $i--) {
                 $weekStart = date('Y-m-d', strtotime("-" . ($i * 7) . " days"));
                 $weekEnd = date('Y-m-d', strtotime("-" . ($i * 7 - 6) . " days"));
@@ -517,7 +483,7 @@ function getProgressTrendData($user_id, $period = 'year') {
             
         case 'year':
         default:
-            // Last 12 months
+            
             for ($i = 11; $i >= 0; $i--) {
                 $monthDate = date('Y-m', strtotime("-$i months"));
                 $monthName = date('M', strtotime($monthDate . '-01'));
@@ -545,9 +511,7 @@ function getProgressTrendData($user_id, $period = 'year') {
     return $data;
 }
 
-/**
- * Get recent activity for a user
- */
+
 function getRecentActivity($user_id, $limit = 10) {
     global $pdo;
     
@@ -564,9 +528,7 @@ function getRecentActivity($user_id, $limit = 10) {
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-/**
- * Get habits that need attention (low completion rate)
- */
+
 function getHabitsNeedingAttention($user_id) {
     $habits = getHabits($user_id);
     
@@ -580,9 +542,7 @@ function getHabitsNeedingAttention($user_id) {
     return $needsAttention;
 }
 
-/**
- * Check if user has completed all habits today
- */
+
 function hasCompletedAllHabitsToday($user_id) {
     global $pdo;
     

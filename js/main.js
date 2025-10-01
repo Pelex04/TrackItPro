@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    // Stars
+
     const stars = [];
     for (let i = 0; i < 100; i++) {
         stars.push({
@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Comet
+   
     const comet = {
         x: -50,
         y: Math.random() * height,
@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.fillStyle = 'rgba(0, 0, 50, 0.8)';
         ctx.fillRect(0, 0, width, height);
 
-        // Draw stars
+       
         stars.forEach(star => {
             ctx.beginPath();
             ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.fill();
         });
 
-        // Draw comet (appears randomly)
+       
         if (Math.random() < 0.01) comet.active = true;
         if (comet.active) {
             ctx.beginPath();

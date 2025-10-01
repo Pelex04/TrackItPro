@@ -1,5 +1,7 @@
 <?php
-
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../config.php';
 
@@ -10,10 +12,10 @@ if (!isset($_SESSION['csrf_token'])) {
 
 $error = '';
 $success = '';
-$action = 'login'; // Default to login panel
+$action = 'login'; 
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Validate CSRF token
+   
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
         $error = "Invalid CSRF token.";
     } else {
@@ -24,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $email = trim($_POST['email'] ?? '');
             $password = $_POST['password'] ?? '';
 
-            // Basic validation
+            
             if (empty($name) || empty($email) || empty($password)) {
                 $error = "All fields are required.";
                 $action = 'register';
@@ -35,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $error = "Password must be at least 6 characters.";
                 $action = 'register';
             } else {
-                // Check if email exists
+               
                 global $pdo;
                 $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE email = ?");
                 $stmt->execute([$email]);
@@ -70,11 +72,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         
     }
 
-    // Regenerate CSRF token after form submission
+  
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -835,6 +836,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </style>
 </head>
 <body>
+    
     <div class="auth-container" id="authContainer" <?php echo $action === 'register' ? 'class="auth-container show-register"' : ''; ?>>
         <div class="sliding-panels">
             <!-- Login Panel -->
@@ -1069,6 +1071,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </div>
         </div>
     </div>
+  
 
     <script>
        let isTransitioning = false;
@@ -1079,20 +1082,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             isTransitioning = true;
             const container = document.getElementById('authContainer');
             
-            // Start transition
+        
             container.classList.add('transitioning');
             
-            // After staggered animations complete, slide to register
+        
             setTimeout(() => {
                 container.classList.add('show-register');
             }, 400);
             
-            // Remove transitioning class and reset flags
+       
             setTimeout(() => {
                 container.classList.remove('transitioning');
                 isTransitioning = false;
-                
-                // Reset and restart animations for the new panel
+             
                 restartAnimations();
             }, 1200);
         }
@@ -1103,29 +1105,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             isTransitioning = true;
             const container = document.getElementById('authContainer');
             
-            // Start transition
+        
             container.classList.add('transitioning');
             
-            // After staggered animations complete, slide to login
+      
             setTimeout(() => {
                 container.classList.remove('show-register');
             }, 400);
-            
-            // Remove transitioning class and reset flags
+ 
             setTimeout(() => {
                 container.classList.remove('transitioning');
                 isTransitioning = false;
                 
-                // Reset and restart animations for the new panel
+            
                 restartAnimations();
             }, 1200);
         }
 
         function restartAnimations() {
-            // Find all animated elements in the currently visible panel
+            
             const animatedElements = document.querySelectorAll('.chart-line, .chart-area, .circular-progress, .progress-text, .metric-value, .metric-change, .hero-title, .hero-description');
             
-            // Remove and re-add animations by cloning elements
+          
             animatedElements.forEach(element => {
                 const parent = element.parentNode;
                 const newElement = element.cloneNode(true);
@@ -1133,22 +1134,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             });
         }
 
-        // Add interactive hover effects to tabs
+      
         document.querySelectorAll('.time-tab').forEach(tab => {
             tab.addEventListener('click', function() {
-                // Remove active class from all tabs in the same container
+                
                 const container = this.closest('.time-tabs');
                 container.querySelectorAll('.time-tab').forEach(t => t.classList.remove('active'));
                 
-                // Add active class to clicked tab
+             
                 this.classList.add('active');
                 
-                // Restart chart animations
+             
                 restartAnimations();
             });
         });
 
-        // Add form input focus animations
+       
         document.querySelectorAll('.form-input').forEach(input => {
             input.addEventListener('focus', function() {
                 this.parentElement.style.transform = 'scale(1.02)';
@@ -1160,10 +1161,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             });
         });
 
-        // Add button click effects
+  
         document.querySelectorAll('.submit-button, .social-button').forEach(button => {
             button.addEventListener('click', function(e) {
-                // Create ripple effect
+              
                 const ripple = document.createElement('span');
                 const rect = this.getBoundingClientRect();
                 const size = Math.max(rect.width, rect.height);
@@ -1193,7 +1194,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             });
         });
 
-        // Add CSS for ripple animation
+      
         const style = document.createElement('style');
         style.textContent = `
             @keyframes ripple {
@@ -1205,7 +1206,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         `;
         document.head.appendChild(style);
 
-        // Initialize page with subtle entrance animation
+       
         window.addEventListener('load', function() {
             const container = document.getElementById('authContainer');
             container.style.opacity = '0';
@@ -1218,10 +1219,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }, 100);
         });
 
-        // Add keyboard navigation
+       
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Tab' && !isTransitioning) {
-                // Add subtle focus indicator animations
+               
                 setTimeout(() => {
                     const focusedElement = document.activeElement;
                     if (focusedElement && focusedElement.classList.contains('form-input')) {
@@ -1231,7 +1232,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         });
 
-        // Add smooth scroll behavior for mobile
+
         if (window.innerWidth <= 768) {
             document.body.style.scrollBehavior = 'smooth';
         }

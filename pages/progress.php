@@ -18,7 +18,7 @@ foreach ($habits as $habit) {
     $stmt->execute([$habit['habit_id']]);
     $completions = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
-    // Calculate weekly/monthly completion rates
+    
     $weekly_completions = 0;
     $monthly_completions = 0;
     $today = new DateTime();
@@ -31,7 +31,7 @@ foreach ($habits as $habit) {
         if ($date >= $month_ago) $monthly_completions += $comp['completions'];
     }
     
-    // Best/worst days
+   
     $best_day = $completions ? max(array_column($completions, 'completions')) : 0;
     $worst_day = $completions ? min(array_column($completions, 'completions')) : 0;
     $best_date = 'N/A';
@@ -65,7 +65,7 @@ foreach ($habits as $habit) {
     ];
 }
 
-// Get overall user stats
+
 $stats = getUserStats($_SESSION['user_id']);
 ?>
 <!DOCTYPE html>
@@ -661,7 +661,7 @@ $stats = getUserStats($_SESSION['user_id']);
                 const ctx = document.getElementById(`chart_${habit_id}`);
                 if (!ctx) continue;
 
-                // Prepare data for the last 30 days or available data
+               
                 const labels = data.completions.length > 0 ? 
                     data.completions.slice(-30).map(c => {
                         const date = new Date(c.date);

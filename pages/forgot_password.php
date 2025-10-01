@@ -8,7 +8,7 @@ require '../vendor/autoload.php';
 
 
 
-// Generate CSRF token if not set
+
 if (!isset($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
@@ -17,7 +17,7 @@ $error = '';
 $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Validate CSRF
+   
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
         $error = "Invalid request.";
     } else {
@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $error = "Invalid email format.";
         } else {
-            // Look up user
+       
             $stmt = $pdo->prepare("SELECT user_id FROM users WHERE email = ?");
             $stmt->execute([$email]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 $reset_link = APP_URL . "/pages/reset_password.php?token=" . urlencode($token);
 
-                // TODO: Use PHPMailer for production
+             
 
 
               $mail = new PHPMailer(true);
@@ -51,8 +51,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                   $mail->isSMTP();
                   $mail->Host       = 'smtp.gmail.com';
                   $mail->SMTPAuth   = true;
-                  $mail->Username   = ''; // your Gmail
-                  $mail->Password   = '';   // your 16-char App Password
+                  $mail->Username   = ''; 
+                  $mail->Password   = '';  
                   $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
                   $mail->Port       = 587;
 
@@ -74,12 +74,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             }
 
-            // Always success message (no info leak)
+            
             $success = "If this email is registered, you will receive a reset link.";
         }
     }
 
-    // Refresh CSRF
+  
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 ?>

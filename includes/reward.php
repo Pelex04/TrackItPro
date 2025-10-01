@@ -10,7 +10,7 @@ function awardPoints($habit_id) {
     $stmt = $pdo->prepare("INSERT INTO rewards (user_id, points) VALUES (?, 10) ON DUPLICATE KEY UPDATE points = points + 10");
     $stmt->execute([$user_id]);
 
-    // Check for badges (e.g., 7-day streak)
+    
     $streak = getStreak($habit_id);
     if ($streak == 7) {
         $stmt = $pdo->prepare("UPDATE rewards SET badge_name = '7-Day Streak' WHERE user_id = ?");

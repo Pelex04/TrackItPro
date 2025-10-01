@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
         $error = "Invalid CSRF token.";
     } else {
-        // Theme update
+      
         if (isset($_POST['theme'])) {
             $theme = $_POST['theme'] === 'dark' ? 'dark' : 'light';
             setcookie('theme', $theme, time() + (365 * 24 * 60 * 60), "/");
@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $stmt->execute([json_encode(['theme' => $theme]), $_SESSION['user_id']]);
         }
 
-        // Notifications update
+        
         if (isset($_POST['update_notifications'])) {
             $notifications = isset($_POST['notifications']) ? 1 : 0;
             $stmt = $GLOBALS['pdo']->prepare("UPDATE users SET preferences = JSON_SET(COALESCE(preferences, '{}'), '$.notifications', ?) WHERE user_id = ?");
@@ -25,12 +25,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $success = "Notification settings updated!";
         }
 
-        // Profile update
+      
         if (isset($_POST['update_profile']) && !empty($_POST['name']) && !empty($_POST['email'])) {
             $name = trim($_POST['name']);
             $email = trim($_POST['email']);
             
-            // Check if email is already taken by another user
+           
             $stmt = $GLOBALS['pdo']->prepare("SELECT user_id FROM users WHERE email = ? AND user_id != ?");
             $stmt->execute([$email, $_SESSION['user_id']]);
             if ($stmt->fetch()) {
@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         }
 
-        // Password update
+       
         if (isset($_POST['update_password'])) {
             $current_password = $_POST['current_password'] ?? '';
             $new_password = $_POST['new_password'] ?? '';
@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             } elseif (strlen($new_password) < 6) {
                 $error = "Password must be at least 6 characters long.";
             } else {
-                // Verify current password
+                
                 $stmt = $GLOBALS['pdo']->prepare("SELECT password_hash FROM users WHERE user_id = ?");
                 $stmt->execute([$_SESSION['user_id']]);
                 $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -773,9 +773,9 @@ $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     </div>
 
     <script>
-        // Theme Management System
+       
         (function() {
-            // Get theme from cookie or default to light
+          
             function getCookie(name) {
                 const value = `; ${document.cookie}`;
                 const parts = value.split(`; ${name}=`);
@@ -783,11 +783,11 @@ $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
                 return null;
             }
 
-            // Initialize theme from cookie
+            
             const savedTheme = getCookie('theme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);
             
-            // Update UI elements to match current theme
+         
             function updateThemeUI(theme) {
                 const themeSelect = document.getElementById('themeSelect');
                 const currentThemeText = document.getElementById('currentThemeText');
@@ -801,31 +801,31 @@ $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
                 }
             }
 
-            // Set theme and update cookie
+           
             function setTheme(theme) {
                 document.documentElement.setAttribute('data-theme', theme);
-                // Set cookie for 1 year
+              
                 document.cookie = `theme=${theme}; path=/; max-age=${365 * 24 * 60 * 60}`;
                 updateThemeUI(theme);
             }
 
-            // Toggle theme
+         
             function toggleTheme() {
                 const currentTheme = document.documentElement.getAttribute('data-theme');
                 const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
                 setTheme(newTheme);
             }
 
-            // Initialize UI on page load
+            
             updateThemeUI(savedTheme);
 
-            // Add event listener to toggle button
+        
             const themeToggle = document.getElementById('themeToggle');
             if (themeToggle) {
                 themeToggle.addEventListener('click', toggleTheme);
             }
 
-            // Sync dropdown changes with theme
+      
             const themeSelect = document.getElementById('themeSelect');
             if (themeSelect) {
                 themeSelect.addEventListener('change', function() {
@@ -833,7 +833,7 @@ $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
                 });
             }
 
-            // Add keyboard accessibility
+         
             if (themeToggle) {
                 themeToggle.setAttribute('tabindex', '0');
                 themeToggle.setAttribute('role', 'button');

@@ -7,7 +7,7 @@ $stmt = $GLOBALS['pdo']->prepare("SELECT points, badge_name FROM rewards WHERE u
 $stmt->execute([$_SESSION['user_id']]);
 $rewards = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// Leaderboard (top 10 users by points)
+
 $stmt = $GLOBALS['pdo']->prepare("
     SELECT u.name, r.points, r.badge_name 
     FROM rewards r 
@@ -18,7 +18,7 @@ $stmt = $GLOBALS['pdo']->prepare("
 $stmt->execute();
 $leaderboard = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Calculate user's rank
+
 $stmt = $GLOBALS['pdo']->prepare("
     SELECT COUNT(*) + 1 as rank 
     FROM rewards 
@@ -27,7 +27,7 @@ $stmt = $GLOBALS['pdo']->prepare("
 $stmt->execute([$_SESSION['user_id']]);
 $user_rank = $stmt->fetchColumn();
 
-// Badge information
+
 $badges = [
     'None' => ['color' => '#9e9e9e', 'icon' => 'fa-user', 'required' => 0],
     'Bronze' => ['color' => '#cd7f32', 'icon' => 'fa-medal', 'required' => 100],
@@ -40,7 +40,7 @@ $badges = [
 $current_badge = $rewards['badge_name'] ?? 'None';
 $current_points = $rewards['points'] ?? 0;
 
-// Find next badge
+
 $next_badge = null;
 $points_to_next = 0;
 foreach ($badges as $name => $info) {

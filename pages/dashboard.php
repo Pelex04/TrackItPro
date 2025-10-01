@@ -11,7 +11,7 @@ $quotes = [
 ];
 $quote = $quotes[array_rand($quotes)];
 
-// Calculate dynamic statistics
+
 $activeHabits = count($habits);
 $totalCompletions = 0;
 $totalExpected = 0;
@@ -19,12 +19,11 @@ $longestStreak = 0;
 $goalsAchieved = 0;
 
 foreach ($habits as $habit) {
-    // Calculate completions this week
+ 
     $completions = isset($habit['completions_this_week']) ? $habit['completions_this_week'] : 0;
     $totalCompletions += $completions;
     
-    // Calculate expected completions based on frequency
-    $expected = 7; // Default to daily
+    $expected = 7;
     if (isset($habit['frequency'])) {
         $freq = strtolower($habit['frequency']);
         if (strpos($freq, 'weekly') !== false) $expected = 1;
@@ -32,12 +31,12 @@ foreach ($habits as $habit) {
     }
     $totalExpected += $expected;
     
-    // Track longest streak
+
     if (isset($habit['current_streak']) && $habit['current_streak'] > $longestStreak) {
         $longestStreak = $habit['current_streak'];
     }
     
-    // Count goals achieved (habits with 100% completion rate)
+   
     if (isset($habit['total_completions']) && $habit['total_completions'] >= 30) {
         $goalsAchieved++;
     }
@@ -818,12 +817,12 @@ $currentStreak = $longestStreak > 0 ? $longestStreak : 0;
         }
 
         function viewHabit(habitId) {
-            // Check if habit_detail.php exists, otherwise go to habits.php with the ID
+         
             window.location.href = 'habit_detail.php?id=' + habitId;
         }
 
         function trackHabitToday(habitId) {
-            // Make AJAX call to mark habit as complete for today
+        
             fetch('track_habit.php', {
                 method: 'POST',
                 headers: {
@@ -835,7 +834,7 @@ $currentStreak = $longestStreak > 0 ? $longestStreak : 0;
             .then(data => {
                 if (data.success) {
                     showNotification('Success! Habit tracked for today.', 'success');
-                    // Refresh the page after a short delay
+                   
                     setTimeout(() => location.reload(), 1000);
                 } else {
                     showNotification(data.message || 'Already tracked or error occurred.', 'info');
@@ -848,18 +847,18 @@ $currentStreak = $longestStreak > 0 ? $longestStreak : 0;
         }
 
         function showNotification(message, type = 'info') {
-            // Create notification element
+         
             const notification = document.createElement('div');
             notification.className = 'notification notification-' + type;
             notification.innerHTML = '<i class="fas fa-' + (type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle') + '"></i> ' + message;
             
-            // Add to body
+     
             document.body.appendChild(notification);
             
-            // Trigger animation
+       
             setTimeout(() => notification.classList.add('show'), 10);
             
-            // Remove after 3 seconds
+         
             setTimeout(() => {
                 notification.classList.remove('show');
                 setTimeout(() => notification.remove(), 300);

@@ -17,12 +17,12 @@ if (!$habit) {
     exit;
 }
 
-// Get calendar data for current month
+
 $currentYear = date('Y');
 $currentMonth = date('m');
 $calendarDates = getHabitCalendarData($habit_id, $currentYear, $currentMonth);
 
-// Get recent activity
+
 $stmt = $GLOBALS['pdo']->prepare("
     SELECT date_completed 
     FROM progress 
@@ -308,12 +308,11 @@ $recentDates = $stmt->fetchAll(PDO::FETCH_COLUMN);
                     $firstDay = date('w', strtotime("$currentYear-$currentMonth-01"));
                     $daysInMonth = date('t', strtotime("$currentYear-$currentMonth-01"));
                     
-                    // Empty cells before first day
+
                     for ($i = 0; $i < $firstDay; $i++) {
                         echo '<div class="calendar-day"></div>';
                     }
-                    
-                    // Days of the month
+             
                     for ($day = 1; $day <= $daysInMonth; $day++) {
                         $dateStr = sprintf('%s-%s-%02d', $currentYear, $currentMonth, $day);
                         $isCompleted = in_array($dateStr, $calendarDates);

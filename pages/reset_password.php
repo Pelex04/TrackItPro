@@ -12,7 +12,7 @@ if (!$token) {
     die("Invalid reset link.");
 }
 
-// Find user with token
+
 $stmt = $pdo->prepare("SELECT user_id, reset_expires FROM users WHERE reset_token=?");
 $stmt->execute([$token]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
